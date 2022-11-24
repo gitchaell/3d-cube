@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Block</title>
+  <style>
+    body {
+      background-color: black;
+      font-family: system-ui;
+      font-weight: 500;
+      display: grid;
+      place-content: center;
+      height: 100vh;
+      overflow: hidden;
+      perspective: 1200px;
+    }
+
+    .block {
+      --width: 8rem;
+      --height: 8rem;
+      position: relative;
+      width: var(--width);
+      height: var(--height);
+      transform-style: preserve-3d;
+      animation: rotation 6s infinite linear, jump 1s infinite ease-in-out;
+    }
+
+    .block.active {
+      animation: rotation 6s infinite linear, plin 0.2s ease;
+    }
+
+    @keyframes rotation {
+      100% {
+        transform: rotateY(360deg);
+      }
+    }
+
+    @keyframes jump {
+      50% {
+        margin-bottom: 24px;
+      }
+    }
+
+    @keyframes plin {
+      50% {
+        margin-bottom: 120px;
+      }
+    }
+
+    .block * {
+      position: absolute;
+      background-image: url(assets/images/block.svg);
+      background-repeat: no-repeat;
+      background-size: cover;
+      box-shadow: inset 0 0 20px 0 rgb(255, 255, 255, 0.48);
+    }
+
+    .block.active * {
+      background-image: url(assets/images/block-active.svg);
+    }
+
+    .front-face,
+    .back-face {
+      width: var(--width);
+      height: var(--height);
+    }
+
+    .right-face,
+    .left-face {
+      width: var(--width);
+      height: var(--height);
+      left: calc(var(--width) / 4);
+    }
+
+    .top-face,
+    .bottom-face {
+      width: var(--width);
+      height: var(--height);
+      top: calc(var(--height) / 4);
+    }
+
+    .front-face {
+      transform: translateZ(calc(var(--height) / 2));
+    }
+
+    .back-face {
+      transform: translateZ(calc(var(--height) / -2));
+    }
+
+    .right-face {
+      transform: rotateY(90deg) translateZ(calc(var(--width) / 4));
+    }
+
+    .left-face {
+      transform: rotateY(270deg) translateZ(calc(var(--width) / 1.35));
+    }
+
+    .top-face {
+      transform: rotateX(90deg) translateZ(calc(var(--height) / 1.35));
+    }
+
+    .bottom-face {
+      transform: rotateX(270deg) translateZ(calc(var(--height) / 4));
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="block">
+    <div class="front-face"></div>
+    <div class="back-face"></div>
+    <div class="right-face"></div>
+    <div class="left-face"></div>
+    <div class="top-face"></div>
+    <div class="bottom-face"></div>
+  </div>
+
+  <script src="https://unpkg.com/rxjs@7.5.7/dist/bundles/rxjs.umd.min.js"></script>
+  <script>
+
+    const { merge, fromEvent, auditTime } = rxjs;
+
+    const block = document.querySelector('div.block');
+    const coin = new Audio('assets/audios/coin.wav');
+
+    merge(
+      fromEvent(document, 'click'),
+      fromEvent(document, 'keydown'),
+      fromEvent(document, 'touchend')
+    )
+      .pipe(auditTime(200))
+      .subscribe(() => {
+        block.classList.add(['active']);
+        coin.cloneNode().play();
+        setTimeout(() => {
+          block.classList.remove(['active']);
+        }, 200);
+      });
+  </script>
+</body>
+
+</html>
