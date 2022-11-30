@@ -5,12 +5,10 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Block</title>
+  <title>3D Cube</title>
   <style>
     body {
       background-color: black;
-      font-family: system-ui;
-      font-weight: 500;
       display: grid;
       place-content: center;
       height: 100vh;
@@ -18,18 +16,53 @@
       perspective: 1200px;
     }
 
-    .block {
-      --width: 8rem;
-      --height: 8rem;
-      position: relative;
-      width: var(--width);
-      height: var(--height);
+    div.cube {
+      --size: 8rem;
+      width: var(--size);
+      height: var(--size);
       transform-style: preserve-3d;
-      animation: rotation 6s infinite linear, jump 1s infinite ease-in-out;
     }
 
-    .block.active {
-      animation: rotation 6s infinite linear, plin 0.2s ease;
+    div.cube * {
+      position: absolute;
+      width: inherit;
+      height: inherit;
+      background: url(assets/images/cube-inactive.svg) center / cover no-repeat;
+      box-shadow: inset 0 0 20px 0 rgb(255, 255, 255, 0.48);
+    }
+
+    div.left-face,
+    div.right-face {
+      left: calc(var(--size) / 4);
+    }
+
+    div.top-face,
+    div.bottom-face {
+      top: calc(var(--size) / 4);
+    }
+
+    div.front-face {
+      transform: translateZ(calc(var(--size) / 2));
+    }
+
+    div.back-face {
+      transform: translateZ(calc(var(--size) / -2));
+    }
+
+    div.left-face {
+      transform: rotateY(270deg) translateZ(calc(var(--size) / 1.35));
+    }
+
+    div.right-face {
+      transform: rotateY(90deg) translateZ(calc(var(--size) / 4));
+    }
+
+    div.top-face {
+      transform: rotateX(90deg) translateZ(calc(var(--size) / 1.35));
+    }
+
+    div.bottom-face {
+      transform: rotateX(270deg) translateZ(calc(var(--size) / 4));
     }
 
     @keyframes rotation {
@@ -38,79 +71,35 @@
       }
     }
 
-    @keyframes jump {
+    @keyframes levitation {
       50% {
         margin-bottom: 24px;
       }
     }
 
-    @keyframes plin {
+    @keyframes activation {
       50% {
         margin-bottom: 120px;
       }
     }
 
-    .block * {
-      position: absolute;
-      background-image: url(assets/images/block.svg);
-      background-repeat: no-repeat;
-      background-size: cover;
-      box-shadow: inset 0 0 20px 0 rgb(255, 255, 255, 0.48);
+    div.cube[data-status="inactive"] {
+      animation: rotation 6s infinite linear, levitation 1s infinite ease-in-out;
     }
 
-    .block.active * {
-      background-image: url(assets/images/block-active.svg);
+    div.cube[data-status="active"] {
+      animation: rotation 6s infinite linear, activation 0.2s ease;
     }
 
-    .front-face,
-    .back-face {
-      width: var(--width);
-      height: var(--height);
-    }
-
-    .right-face,
-    .left-face {
-      width: var(--width);
-      height: var(--height);
-      left: calc(var(--width) / 4);
-    }
-
-    .top-face,
-    .bottom-face {
-      width: var(--width);
-      height: var(--height);
-      top: calc(var(--height) / 4);
-    }
-
-    .front-face {
-      transform: translateZ(calc(var(--height) / 2));
-    }
-
-    .back-face {
-      transform: translateZ(calc(var(--height) / -2));
-    }
-
-    .right-face {
-      transform: rotateY(90deg) translateZ(calc(var(--width) / 4));
-    }
-
-    .left-face {
-      transform: rotateY(270deg) translateZ(calc(var(--width) / 1.35));
-    }
-
-    .top-face {
-      transform: rotateX(90deg) translateZ(calc(var(--height) / 1.35));
-    }
-
-    .bottom-face {
-      transform: rotateX(270deg) translateZ(calc(var(--height) / 4));
+    div.cube[data-status="active"] * {
+      background-image: url(assets/images/cube-active.svg);
     }
   </style>
 </head>
 
 <body>
 
-  <div class="block">
+  <div class="cube" data-status="inactive">
     <div class="front-face"></div>
     <div class="back-face"></div>
     <div class="right-face"></div>
@@ -120,26 +109,28 @@
   </div>
 
   <script src="https://unpkg.com/rxjs@7.5.7/dist/bundles/rxjs.umd.min.js"></script>
+
   <script>
 
-    const { merge, fromEvent, auditTime } = rxjs;
-
-    const block = document.querySelector('div.block');
+    const cube = document.querySelector('div.cube');
     const coin = new Audio('assets/audios/coin.wav');
 
-    merge(
-      fromEvent(document, 'click'),
-      fromEvent(document, 'keydown'),
-      fromEvent(document, 'touchend')
+    const activateCube = () => {
+      coin.cloneNode().play();
+      cube.dataset.status = 'active';
+      setTimeout(() => {
+        cube.dataset.status = 'inactive';
+      }, 200);
+    };
+
+    rxjs.merge(
+      rxjs.fromEvent(document, 'click'),
+      rxjs.fromEvent(document, 'keypress'),
+      rxjs.fromEvent(document, 'touchend')
     )
-      .pipe(auditTime(200))
-      .subscribe(() => {
-        block.classList.add(['active']);
-        coin.cloneNode().play();
-        setTimeout(() => {
-          block.classList.remove(['active']);
-        }, 200);
-      });
+      .pipe(rxjs.auditTime(200))
+      .subscribe(activateCube);
+
   </script>
 </body>
 
