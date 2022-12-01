@@ -8,7 +8,7 @@
   <title>3D Cube</title>
   <style>
     body {
-      background: black;
+      background-color: black;
       display: grid;
       place-content: center;
       height: 100vh;
@@ -28,7 +28,7 @@
       width: inherit;
       height: inherit;
       background: url(assets/images/cube-inactive.svg) center / cover no-repeat;
-      box-shadow: inset 0 0 20px 0 rgba(255, 255, 255, 0.48);
+      box-shadow: inset 0 0 20px 0 rgb(255, 255, 255, 0.48);
     }
 
     div.left-face,
@@ -84,13 +84,11 @@
     }
 
     div.cube[data-status="inactive"] {
-      animation: rotation 6s infinite linear,
-        levitation 1s infinite ease-in-out;
+      animation: rotation 6s infinite linear, levitation 1s infinite ease-in-out;
     }
 
     div.cube[data-status="active"] {
-      animation: rotation 6s infinite linear,
-        activation 0.2s ease;
+      animation: rotation 6s infinite linear, activation 0.2s ease;
     }
 
     div.cube[data-status="active"] * {
@@ -104,10 +102,10 @@
   <div class="cube" data-status="inactive">
     <div class="front-face"></div>
     <div class="back-face"></div>
+    <div class="right-face"></div>
+    <div class="left-face"></div>
     <div class="top-face"></div>
     <div class="bottom-face"></div>
-    <div class="left-face"></div>
-    <div class="right-face"></div>
   </div>
 
   <script src="https://unpkg.com/rxjs@7.5.7/dist/bundles/rxjs.umd.min.js"></script>
@@ -128,13 +126,12 @@
     rxjs.merge(
       rxjs.fromEvent(document, 'click'),
       rxjs.fromEvent(document, 'keypress'),
-      rxjs.fromEvent(document, 'touchend'),
+      rxjs.fromEvent(document, 'touchend')
     )
       .pipe(rxjs.auditTime(200))
       .subscribe(activateCube);
 
   </script>
-
 </body>
 
 </html>
